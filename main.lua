@@ -1,27 +1,23 @@
--- [[ Peace Hub - Official Block Spin Edition ]]
--- تفعيل نظام الحماية ومنع الانهيار للواجهة
+-- [[ Peace Hub - Official Clean Edition ]]
 if not game:IsLoaded() then game.Loaded:Wait() end
 
+-- جلب السورس الرسمي والمستقر للمكتبة
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- إنشاء النافذة بالأبعاد المتوافقة تماماً مع شاشة اللعبة الثابتة
+-- إنشاء النافذة بالأبعاد الصحيحة (الألوان البيضاء ستظهر تلقائياً على الأزرار والنصوص)
 local Window = Fluent:CreateWindow({
     Title = "Peace Hub | PVP",
-    SubTitle = "[X] - Block Spin | Clean Edition",
-    TabWidth = 150,
-    Size = UDim2.fromOffset(560, 430), -- أبعاد محسنة لمنع اختفاء القائمة الجانبية
-    Acrylic = false, 
-    Theme = "Dark", 
+    SubTitle = "Block Spin | White Style",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = false, -- تم إيقافه لمنع اختفاء الأزرار في اللعبة
+    Theme = "Dark", -- الثيم الداكن يبرز النصوص والأزرار البيضاء بوضوح عالي
     MinimizeKey = Enum.KeyCode.RightControl
 })
 
--- تخصيص اللون الأبيض النقي للنصوص الرئيسية والتفاعلات
-Fluent:SetTheme("Dark")
-Window.Root.TitleBar.Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-
--- القوائم الجانبية (Tabs) مرتبة ومطابقة لطلبك
+-- إنشاء الأقسام الجانبية (Tabs)
 local Tabs = {
     General = Window:AddTab({ Title = "General", Icon = "user" }),
     Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
@@ -38,10 +34,10 @@ local Tabs = {
 -- [ محتويات قسم General ]
 -- ==========================================
 
--- عرض معلومات الحساب المالي
+-- قسم عرض الأموال والبنك
 Tabs.General:AddParagraph({
     Title = "Information:",
-    Content = "💵 Hand: $0\n🏦 Bank: $24265"
+    Content = "💵 Hand: $0\n🏦 Bank: $24,265"
 })
 
 -- ميزة الاختفاء (Invisible)
@@ -52,36 +48,29 @@ local InvisibleToggle = Tabs.General:AddToggle("Invisible", {
     Callback = function(Value)
         _G.Invisible = Value
         local Player = game.Players.LocalPlayer
-        local Character = Player.Character or Player.CharacterAdded:Wait()
-        
-        if Value then
-            -- كود برمجى آمن للاختفاء داخل اللعبة
+        local Character = Player.Character
+        if Value and Character then
             task.spawn(function()
                 while _G.Invisible and Character do
                     for _, part in pairs(Character:GetDescendants()) do
                         if part:IsA("BasePart") or part:IsA("Decal") then
-                            if part.Name ~= "HumanoidRootPart" then
-                                part.Transparency = 1
-                            end
+                            if part.Name ~= "HumanoidRootPart" then part.Transparency = 1 end
                         end
                     end
                     task.wait(0.5)
                 end
             end)
-        else
-            -- إعادة إظهار الشخصية عند الإيقاف
+        elseif Character then
             for _, part in pairs(Character:GetDescendants()) do
                 if part:IsA("BasePart") or part:IsA("Decal") then
-                    if part.Name ~= "HumanoidRootPart" then
-                        part.Transparency = 0
-                    end
+                    if part.Name ~= "HumanoidRootPart" then part.Transparency = 0 end
                 end
             end
         end
     end
 })
 
--- ميزة التحكم في مدى المغناطيس (Magneto Range)
+-- شريط تمرير المسافة للمغناطيس
 local MagnetoSlider = Tabs.General:AddSlider("MagnetoRange", {
     Title = "Magneto Range",
     Description = "Select range for Magneto",
@@ -94,7 +83,7 @@ local MagnetoSlider = Tabs.General:AddSlider("MagnetoRange", {
     end
 })
 
--- ميزة المغناطيس (Magneto) لجلب العناصر المتساقطة في Block Spin
+-- ميزة المغناطيس (Magneto)
 local MagnetoToggle = Tabs.General:AddToggle("Magneto", {
     Title = "Magneto",
     Default = false,
@@ -108,7 +97,6 @@ local MagnetoToggle = Tabs.General:AddToggle("Magneto", {
                     local Character = Player.Character
                     local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
                     if RootPart then
-                        -- البحث عن الأموال أو الأدوات المتساقطة في خريطة اللعبة وسحبها
                         for _, item in pairs(workspace:GetChildren()) do
                             if item:IsA("Tool") or item:FindFirstChild("TouchInterest") then
                                 local targetPart = item:FindFirstChildAsClass("Part") or item
@@ -141,7 +129,7 @@ Tabs.General:AddToggle("HideName", {
 })
 
 -- ==========================================
--- [ تهيئة نظام حفظ الإعدادات تلقائياً ]
+-- [ نظام حفظ الإعدادات تلقائياً ]
 -- ==========================================
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
@@ -151,5 +139,5 @@ InterfaceManager:SetFolder("PeaceHubBlockSpin")
 SaveManager:SetFolder("PeaceHubBlockSpin/configs")
 SaveManager:BuildConfigSection(Tabs.Config)
 
--- اختيار القسم الأول تلقائياً لضمان التحميل الكامل للواجهة
+-- فتح أول قسم تلقائياً لضمان تشغيل الواجهة كاملة
 Window:SelectTab(1)
